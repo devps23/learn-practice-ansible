@@ -1,0 +1,1 @@
+ansible-playbook -i "private-ip-address," frontend -e ansible_user=ec2-user -e ansible_password=DevOps321

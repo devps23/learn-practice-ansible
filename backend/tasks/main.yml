@@ -1,0 +1,65 @@
+- name: disable old nodejs
+  ansible.builtin.shell: dnf module disable nodejs -y
+
+- name:  enable nodejs 20 version
+  ansible.builtin.shell: dnf module enable nodejs:20 -y
+
+- name: install node js
+  ansible.builtin.dnf:
+    name: nodejs
+    state: installed
+
+- name: add new user as expense
+  ansible.builtin.user:
+    name: expense
+
+- name: remove app directory
+  ansible.builtin.file:
+    path: /app
+    state: absent
+
+- name: make app directory
+  ansible.builtin.file:
+    path: /app
+    state: directory
+
+- name: unarchive backend code
+  ansible.builtin.unarchive:
+    src: https://expense-artifacts.s3.amazonaws.com/expense-backend-v2.zip
+    dest: /app
+    remote_src: yes
+
+- name: Install npm packages
+  community.general.npm:
+    name: npm
+    path: /app
+
+- name: copy backend service
+  ansible.builtin.template:
+    src: backend.service
+    dest: /etc/systemd/system/backend.service
+
+- name: install mysql
+  ansible.builtin.dnf:
+    name: mysql
+    state: installed
+
+- name: Load schema
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: ExpenseApp@1
+    login_host: <MYSQL-SERVER-IPADDRESS>
+    target: /app/schema/backend.sql
+    state: import
+    name: mysql
+
+- name: start backend service
+  ansible.builtin.systemd_service:
+    name: backend
+    state: started
+    enabled: yes
+    daemon-reload: yes
+
+
+
+
