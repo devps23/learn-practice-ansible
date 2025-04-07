@@ -36,8 +36,8 @@
 
 - name: copy backend service
   ansible.builtin.template:
-    src: backend.service
-    dest: /etc/systemd/system/backend.service
+    src: run.sh
+    dest: /etc/systemd/system/run.sh
 
 - name: install mysql
   ansible.builtin.dnf:
